@@ -7,6 +7,14 @@ function error_handler() {
 trap 'error_handler ${LINENO} $?' ERR
 set -o errtrace -o errexit -o nounset -o pipefail
 
+function hot_sed() {
+  if type gsed >/dev/null 2>&1; then
+    gsed "$@"
+  else
+    sed "$@"
+  fi
+}
+
 # sort of like https://lithic.tech/blog/2020-05/react-dynamic-config, but without golang
 react_configs=$(env | grep -E "^SPIFFWORKFLOW_FRONTEND_RUNTIME_CONFIG_" || echo '')
 if [[ -n "$react_configs" ]]; then
@@ -24,6 +32,32 @@ if [[ -n "$react_configs" ]]; then
   if ! command -v perl >/dev/null ; then
     >&2 echo "ERROR: perl command not found. Cannot use SPIFFWORKFLOW_FRONTEND_RUNTIME_CONFIG values without it."
     exit 1
+  fi
+
+  if [[ -n "$SPIFFWORKFLOW_FRONTEND_RUNTIME_CONFIG_GA_TRACKING_ID" ]]; then
+    # evalute template and put result in new file
+    if [[ ! -f bin/website_analytics ]]; then
+      if [[ ! -f bin/website_analytics_template ]]; then
+        2>&1 echo "ERROR: expected to find a bin/website_analytics_template file"
+        exit 1
+      fi
+      perl -p -e "s/\{\{\{\{GA_TRACKING_ID\}\}\}\}/$SPIFFWORKFLOW_FRONTEND_RUNTIME_CONFIG_GA_TRACKING_ID/g" bin/website_analytics_template > bin/website_analytics
+    fi
+
+    # we no longer need this env var in this script.
+    # avoid considering it when we iterate over all the env vars below.
+    unset SPIFFWORKFLOW_FRONTEND_RUNTIME_CONFIG_GA_TRACKING_ID
+
+    if ! grep -Eq "googletagmanager" "$index_html_file"; then
+      # add newline after head tag
+      perl -pi -e "s/<head>/<head>\n/" "$index_html_file"
+      # so we can easily add the full content of a file after the opening <head> tag
+      hot_sed -i '/<head>/ r bin/website_analytics' "$index_html_file"
+    fi
+    if ! grep -Eq "googletagmanager" "$index_html_file"; then
+      >&2 echo "ERROR: expected to find googletagmanager in '${index_html_file}' after our search and replace operations."
+      exit 1
+    fi
   fi
 
   for react_config in $react_configs; do
