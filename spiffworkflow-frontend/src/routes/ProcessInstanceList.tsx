@@ -2,10 +2,12 @@ import { useSearchParams } from 'react-router-dom';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
+import { useEffect } from 'react';
 import ProcessBreadcrumb from '../components/ProcessBreadcrumb';
 import ProcessInstanceListTable from '../components/ProcessInstanceListTable';
 import { getProcessModelFullIdentifierFromSearchParams } from '../helpers';
 import ProcessInstanceListTabs from '../components/ProcessInstanceListTabs';
+import { PRODUCT_NAME } from '../config';
 
 type OwnProps = {
   variant: string;
@@ -13,6 +15,9 @@ type OwnProps = {
 
 export default function ProcessInstanceList({ variant }: OwnProps) {
   const [searchParams] = useSearchParams();
+  useEffect(() => {
+    document.title = `Process instances - ${PRODUCT_NAME}`;
+  }, []);
 
   const processInstanceBreadcrumbElement = () => {
     const processModelFullIdentifier =

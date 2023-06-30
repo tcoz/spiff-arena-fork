@@ -13,8 +13,10 @@ import { useUriListForPermissions } from '../hooks/UriListForPermissions';
 import { usePermissionFetcher } from '../hooks/PermissionService';
 import ProcessModelSearch from '../components/ProcessModelSearch';
 import ProcessGroupListTiles from '../components/ProcessGroupListTiles';
+import { PRODUCT_NAME } from '../config';
 
 export default function ProcessGroupList() {
+  document.title = `Processes - ${PRODUCT_NAME}`;
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 

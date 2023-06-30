@@ -6,6 +6,7 @@ import { isInteger, modifyProcessIdentifierForPathParam } from '../helpers';
 import HttpService from '../services/HttpService';
 import ProcessInstanceListTabs from '../components/ProcessInstanceListTabs';
 import { ProcessInstance } from '../interfaces';
+import { PRODUCT_NAME } from '../config';
 
 export default function ProcessInstanceFindById() {
   const navigate = useNavigate();
@@ -13,7 +14,9 @@ export default function ProcessInstanceFindById() {
   const [processInstanceIdValid, setProcessInstanceIdValid] =
     useState<boolean>(true);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    document.title = `Process instance find - ${PRODUCT_NAME}`;
+  }, []);
 
   const handleProcessInstanceNavigation = (result: any) => {
     const processInstance: ProcessInstance = result.process_instance;

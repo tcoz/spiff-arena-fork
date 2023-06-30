@@ -4,6 +4,7 @@ import { Table } from '@carbon/react';
 import { AuthenticationItem } from '../interfaces';
 import HttpService from '../services/HttpService';
 import UserService from '../services/UserService';
+import { PRODUCT_NAME } from '../config';
 
 export default function AuthenticationList() {
   const [authenticationList, setAuthenticationList] = useState<
@@ -15,6 +16,8 @@ export default function AuthenticationList() {
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null);
 
   useEffect(() => {
+    document.title = `Authentications - ${PRODUCT_NAME}`;
+
     const processResult = (result: any) => {
       setAuthenticationList(result.results);
       setConnectProxyBaseUrl(result.connector_proxy_base_url);

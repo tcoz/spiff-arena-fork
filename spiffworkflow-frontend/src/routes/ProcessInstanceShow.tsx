@@ -58,6 +58,7 @@ import useAPIError from '../hooks/UseApiError';
 import ProcessInterstitial from '../components/ProcessInterstitial';
 import ProcessInstanceLogList from '../components/ProcessInstanceLogList';
 import MessageInstanceList from '../components/MessageInstanceList';
+import { PRODUCT_NAME } from '../config';
 
 type OwnProps = {
   variant: string;
@@ -135,6 +136,12 @@ export default function ProcessInstanceShow({ variant }: OwnProps) {
     addError(value);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (processInstance) {
+      document.title = `Process instance ${processInstance.id} - ${PRODUCT_NAME}`;
+    }
+  }, [processInstance]);
 
   useEffect(() => {
     if (!permissionsLoaded) {

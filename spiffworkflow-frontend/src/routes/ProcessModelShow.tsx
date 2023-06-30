@@ -49,6 +49,8 @@ import { useUriListForPermissions } from '../hooks/UriListForPermissions';
 import ProcessInstanceRun from '../components/ProcessInstanceRun';
 import { Notification } from '../components/Notification';
 import ProcessModelTestRun from '../components/ProcessModelTestRun';
+import { PRODUCT_NAME } from '../config';
+import { sendSelectContentEvent } from '../web_analytics';
 
 export default function ProcessModelShow() {
   const params = useParams();
@@ -93,6 +95,13 @@ export default function ProcessModelShow() {
       (processModelFile: ProcessFile) => isTestCaseFile(processModelFile)
     );
   }
+
+  useEffect(() => {
+    if (processModel) {
+      document.title = `${processModel.display_name} - ${PRODUCT_NAME}`;
+      sendSelectContentEvent('process-model', processModel.id);
+    }
+  }, [processModel]);
 
   useEffect(() => {
     const processResult = (result: ProcessModel) => {

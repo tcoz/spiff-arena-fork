@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import ProcessInstanceListTable from '../components/ProcessInstanceListTable';
+import { PRODUCT_NAME } from '../config';
 import { slugifyString } from '../helpers';
 import HttpService from '../services/HttpService';
 
@@ -7,6 +8,7 @@ export default function CompletedInstances() {
   const [userGroups, setUserGroups] = useState<string[] | null>(null);
 
   useEffect(() => {
+    document.title = `Completed Instances - ${PRODUCT_NAME}`;
     HttpService.makeCallToBackend({
       path: `/user-groups/for-current-user`,
       successCallback: setUserGroups,

@@ -14,6 +14,7 @@ import {
 import HttpService from '../services/HttpService';
 import { FormatProcessModelDisplayName } from './MiniComponents';
 import { MessageInstance } from '../interfaces';
+import { PRODUCT_NAME } from '../config';
 
 type OwnProps = {
   processInstanceId?: number;
@@ -28,6 +29,8 @@ export default function MessageInstanceList({ processInstanceId }: OwnProps) {
     useState<MessageInstance | null>(null);
 
   useEffect(() => {
+    document.title = `Messages - ${PRODUCT_NAME}`;
+
     const setMessageInstanceListFromResult = (result: any) => {
       setMessageInstances(result.results);
       setPagination(result.pagination);

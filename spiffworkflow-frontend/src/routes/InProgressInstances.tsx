@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import ProcessInstanceListTable from '../components/ProcessInstanceListTable';
+import { PRODUCT_NAME } from '../config';
 import { slugifyString } from '../helpers';
 import HttpService from '../services/HttpService';
 
 export default function InProgressInstances() {
+  document.title = `In Progress Instances - ${PRODUCT_NAME}`;
   const [userGroups, setUserGroups] = useState<string[] | null>(null);
 
   useEffect(() => {
