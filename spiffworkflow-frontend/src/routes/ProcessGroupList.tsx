@@ -13,6 +13,7 @@ import { useUriListForPermissions } from '../hooks/UriListForPermissions';
 import { usePermissionFetcher } from '../hooks/PermissionService';
 import ProcessModelSearch from '../components/ProcessModelSearch';
 import ProcessGroupListTiles from '../components/ProcessGroupListTiles';
+import { PRODUCT_NAME } from '../config';
 
 export default function ProcessGroupList() {
   const [searchParams] = useSearchParams();
@@ -29,6 +30,8 @@ export default function ProcessGroupList() {
   const { ability } = usePermissionFetcher(permissionRequestData);
 
   useEffect(() => {
+    document.title = `Processes - ${PRODUCT_NAME}`;
+
     const processResultForProcessModels = (result: any) => {
       const selectionArray = result.results.map((item: any) => {
         const label = `${item.id}`;

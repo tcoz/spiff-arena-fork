@@ -14,6 +14,7 @@ import {
 import HttpService from '../services/HttpService';
 import { FormatProcessModelDisplayName } from '../components/MiniComponents';
 import { MessageInstance } from '../interfaces';
+import { PRODUCT_NAME } from '../config';
 
 export default function MessageInstanceList() {
   const params = useParams();
@@ -25,6 +26,8 @@ export default function MessageInstanceList() {
     useState<MessageInstance | null>(null);
 
   useEffect(() => {
+    document.title = `Messages - ${PRODUCT_NAME}`;
+
     const setMessageInstanceListFromResult = (result: any) => {
       setMessageInstances(result.results);
       setPagination(result.pagination);

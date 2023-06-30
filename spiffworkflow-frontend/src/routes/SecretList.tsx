@@ -6,6 +6,7 @@ import { MdDelete } from 'react-icons/md';
 import PaginationForTable from '../components/PaginationForTable';
 import HttpService from '../services/HttpService';
 import { getPageInfoFromSearchParams } from '../helpers';
+import { PRODUCT_NAME } from '../config';
 
 export default function SecretList() {
   const [searchParams] = useSearchParams();
@@ -14,6 +15,8 @@ export default function SecretList() {
   const [pagination, setPagination] = useState(null);
 
   useEffect(() => {
+    document.title = `Secrets - ${PRODUCT_NAME}`;
+
     const setSecretsFromResult = (result: any) => {
       setSecrets(result.results);
       setPagination(result.pagination);

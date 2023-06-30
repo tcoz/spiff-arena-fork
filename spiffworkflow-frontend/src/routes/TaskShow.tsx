@@ -25,6 +25,7 @@ import { EventDefinition, Task } from '../interfaces';
 import ProcessBreadcrumb from '../components/ProcessBreadcrumb';
 import InstructionsForEndUser from '../components/InstructionsForEndUser';
 import TypeaheadWidget from '../rjsf/custom_widgets/TypeaheadWidget/TypeaheadWidget';
+import { PRODUCT_NAME } from '../config';
 
 export default function TaskShow() {
   const [task, setTask] = useState<Task | null>(null);
@@ -48,6 +49,14 @@ export default function TaskShow() {
       )}/${myTask.process_instance_id}/interstitial`
     );
   };
+
+  useEffect(() => {
+    if (task) {
+      document.title = `Task: ${
+        task.name_for_display || task.id
+      } - ${PRODUCT_NAME}`;
+    }
+  }, [task]);
 
   useEffect(() => {
     const processResult = (result: Task) => {
@@ -501,6 +510,8 @@ export default function TaskShow() {
       statusString = ` ${task.state}`;
     }
 
+    const taskNameForDisplay = task.name_for_display || task.id;
+
     return (
       <main>
         <ProcessBreadcrumb
@@ -511,12 +522,12 @@ export default function TaskShow() {
                 task.process_model_identifier
               )}/${params.process_instance_id}`,
             ],
-            [`Task: ${task.name_for_display || task.id}`],
+            [`Task: ${taskNameForDisplay}`],
           ]}
         />
         <div>{buildTaskNavigation()}</div>
         <h3>
-          Task: {task.name_for_display} ({task.process_model_display_name})
+          Task: {taskNameForDisplay} ({task.process_model_display_name})
           {statusString}
         </h3>
         <InstructionsForEndUser task={task} />

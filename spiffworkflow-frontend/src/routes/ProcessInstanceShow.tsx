@@ -54,6 +54,7 @@ import ProcessInstanceClass from '../classes/ProcessInstanceClass';
 import TaskListTable from '../components/TaskListTable';
 import useAPIError from '../hooks/UseApiError';
 import ProcessInterstitial from '../components/ProcessInterstitial';
+import { PRODUCT_NAME } from '../config';
 
 type OwnProps = {
   variant: string;
@@ -135,6 +136,12 @@ export default function ProcessInstanceShow({ variant }: OwnProps) {
     addError(value);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (processInstance) {
+      document.title = `Process instance ${processInstance.id} - ${PRODUCT_NAME}`;
+    }
+  }, [processInstance]);
 
   useEffect(() => {
     if (!permissionsLoaded) {

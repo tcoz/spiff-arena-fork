@@ -31,6 +31,7 @@ import { usePermissionFetcher } from '../hooks/PermissionService';
 import ProcessGroupListTiles from '../components/ProcessGroupListTiles';
 import ButtonWithConfirmation from '../components/ButtonWithConfirmation';
 import ProcessModelListTiles from '../components/ProcessModelListTiles';
+import { PRODUCT_NAME } from '../config';
 
 export default function ProcessGroupShow() {
   const params = useParams();
@@ -49,6 +50,12 @@ export default function ProcessGroupShow() {
     [targetUris.processModelCreatePath]: ['POST'],
   };
   const { ability } = usePermissionFetcher(permissionRequestData);
+
+  useEffect(() => {
+    if (processGroup) {
+      document.title = `${processGroup.display_name} - ${PRODUCT_NAME}`;
+    }
+  }, [processGroup]);
 
   useEffect(() => {
     const { page, perPage } = getPageInfoFromSearchParams(searchParams);
