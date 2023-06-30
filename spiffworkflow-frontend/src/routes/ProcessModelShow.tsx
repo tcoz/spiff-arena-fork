@@ -50,6 +50,7 @@ import ProcessInstanceRun from '../components/ProcessInstanceRun';
 import { Notification } from '../components/Notification';
 import ProcessModelTestRun from '../components/ProcessModelTestRun';
 import { PRODUCT_NAME } from '../config';
+import { sendSelectContentEvent } from '../web_analytics';
 
 export default function ProcessModelShow() {
   const params = useParams();
@@ -98,6 +99,7 @@ export default function ProcessModelShow() {
   useEffect(() => {
     if (processModel) {
       document.title = `${processModel.display_name} - ${PRODUCT_NAME}`;
+      sendSelectContentEvent('process-model', processModel.id);
     }
   }, [processModel]);
 

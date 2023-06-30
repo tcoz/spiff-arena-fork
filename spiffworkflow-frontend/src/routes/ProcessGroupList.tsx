@@ -16,6 +16,7 @@ import ProcessGroupListTiles from '../components/ProcessGroupListTiles';
 import { PRODUCT_NAME } from '../config';
 
 export default function ProcessGroupList() {
+  document.title = `Processes - ${PRODUCT_NAME}`;
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -30,8 +31,6 @@ export default function ProcessGroupList() {
   const { ability } = usePermissionFetcher(permissionRequestData);
 
   useEffect(() => {
-    document.title = `Processes - ${PRODUCT_NAME}`;
-
     const processResultForProcessModels = (result: any) => {
       const selectionArray = result.results.map((item: any) => {
         const label = `${item.id}`;

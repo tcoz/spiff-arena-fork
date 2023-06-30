@@ -5,10 +5,10 @@ import { slugifyString } from '../helpers';
 import HttpService from '../services/HttpService';
 
 export default function InProgressInstances() {
+  document.title = `In Progress Instances - ${PRODUCT_NAME}`;
   const [userGroups, setUserGroups] = useState<string[] | null>(null);
 
   useEffect(() => {
-    document.title = `In Progress Instances - ${PRODUCT_NAME}`;
     HttpService.makeCallToBackend({
       path: `/user-groups/for-current-user`,
       successCallback: setUserGroups,

@@ -14,6 +14,7 @@ import HttpService from '../services/HttpService';
 import { modifyProcessIdentifierForPathParam } from '../helpers';
 import { usePermissionFetcher } from '../hooks/PermissionService';
 import useAPIError from '../hooks/UseApiError';
+import { sendWebAnalyticsEvent } from '../web_analytics';
 
 const storeRecentProcessModelInLocalStorage = (
   processModelForStorage: ProcessModel
@@ -122,6 +123,9 @@ export default function ProcessInstanceRun({
   const processInstanceCreateAndRun = () => {
     removeError();
     setDisableStartButton(true);
+    sendWebAnalyticsEvent('process-instance-run', {
+      'process-model_id': processModel.id,
+    });
     HttpService.makeCallToBackend({
       path: processInstanceCreatePath,
       successCallback: processModelRun,
