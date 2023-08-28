@@ -51,3 +51,18 @@ class TestProcessModelService(BaseTest):
         assert len(pm_dict["files"]) == 1
         file = pm_dict["files"][0]
         assert re.search("hello", file["file_contents"]) is not None
+
+    def test_can_copy_process_model(
+        self,
+        app: Flask,
+        with_db_and_bpmn_file_cleanup: None,
+    ) -> None:
+        process_model = load_test_spec(
+            "test_group/hello_world",
+            bpmn_file_name="hello_world.bpmn",
+            process_model_source_directory="hello_world",
+        )
+        process_model = ProcessModelService.process_model_copy(process_model, "test_group/new_process_model")
+        import pdb; pdb.set_trace()
+        print(f"process_model: {process_model}")
+

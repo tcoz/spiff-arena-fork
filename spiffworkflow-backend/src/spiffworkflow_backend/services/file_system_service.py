@@ -1,5 +1,7 @@
 import os
 from collections.abc import Generator
+from lxml import etree # type: ignore
+from spiffworkflow_backend.services.custom_parser import MyCustomParser
 from contextlib import contextmanager
 from datetime import datetime
 
@@ -211,3 +213,14 @@ class FileSystemService:
         file_size = stats.st_size
         last_modified = FileSystemService._last_modified(item.path)
         return File.from_file_system(item.name, file_type, content_type, last_modified, file_size)
+
+    @classmethod
+    def get_etree_from_xml_bytes(cls, binary_data: bytes) -> etree.Element:
+        etree_xml_parser = etree.XMLParser(resolve_entities=False)
+        return etree.fromstring(binary_data, parser=etree_xml_parser)  # noqa: S320
+
+    @classmethod
+    def get_bpmn_process_ids_for_file_contents(cls, binary_data: bytes) -> list[str]:
+        parser = MyCustomParser()
+        parser.add_bpmn_xml(cls.get_etree_from_xml_bytes(binary_data))
+        return list(parser.process_parsers.keys())

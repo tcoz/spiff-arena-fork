@@ -1,3 +1,5 @@
+from copy import copy
+import re
 import json
 import os
 import shutil
@@ -27,6 +29,14 @@ T = TypeVar("T")
 
 
 class ProcessModelWithInstancesNotDeletableError(Exception):
+    pass
+
+
+class ProcessModelAlreadyExistsError(Exception):
+    pass
+
+
+class ProcessGroupAlreadyExistsError(Exception):
     pass
 
 
@@ -371,17 +381,6 @@ class ProcessModelService(FileSystemService):
         return new_process_group
 
     @classmethod
-    def __get_all_nested_models(cls, group_path: str) -> list:
-        all_nested_models = []
-        for _root, dirs, _files in os.walk(group_path):
-            for dir in dirs:
-                model_dir = os.path.join(group_path, dir)
-                if ProcessModelService.is_process_model(model_dir):
-                    process_model = cls.get_process_model(model_dir)
-                    all_nested_models.append(process_model)
-        return all_nested_models
-
-    @classmethod
     def process_group_delete(cls, process_group_id: str) -> None:
         problem_models = []
         path = cls.full_path_from_id(process_group_id)
@@ -400,24 +399,6 @@ class ProcessModelService(FileSystemService):
                     f" {problem_models}"
                 )
             shutil.rmtree(path)
-
-    @classmethod
-    def __scan_process_groups(cls, process_group_id: str | None = None) -> list[ProcessGroup]:
-        if not os.path.exists(FileSystemService.root_path()):
-            return []  # Nothing to scan yet.  There are no files.
-        if process_group_id is not None:
-            scan_path = os.path.join(FileSystemService.root_path(), process_group_id)
-        else:
-            scan_path = FileSystemService.root_path()
-
-        with os.scandir(scan_path) as directory_items:
-            process_groups = []
-            for item in directory_items:
-                # if item.is_dir() and not item.name[0] == ".":
-                if item.is_dir() and cls.is_process_group(item):  # type: ignore
-                    scanned_process_group = cls.find_or_create_process_group(item.path)
-                    process_groups.append(scanned_process_group)
-            return process_groups
 
     @classmethod
     def find_or_create_process_group(cls, dir_path: str, find_direct_nested_items: bool = True) -> ProcessGroup:
@@ -466,6 +447,46 @@ class ProcessModelService(FileSystemService):
                 # process_group.process_groups.sort()
         return process_group
 
+    @classmethod
+    def process_model_copy(cls, source_process_model: ProcessModelInfo, new_process_model_identifier: str) -> ProcessModelInfo:
+        if cls.is_process_model_identifier(new_process_model_identifier):
+            raise ProcessModelAlreadyExistsError(f"Cannot copy '{source_process_model.id}' to '{new_process_model_identifier}'. It already exists as a process model.")
+        if cls.is_process_group_identifier(new_process_model_identifier):
+            raise ProcessGroupAlreadyExistsError(f"Cannot copy '{source_process_model.id}' to '{new_process_model_identifier}'. It already exists as a process group.")
+
+        new_primary_process_id = f"{source_process_model.primary_process_id}_COPY"
+        new_process_model = copy(source_process_model)
+        new_process_model.id = new_process_model_identifier
+        new_process_model.primary_process_id = new_primary_process_id
+
+        source_directory = os.path.join(FileSystemService.root_path(), source_process_model.id_for_file_path())
+        destination_directory = os.path.join(FileSystemService.root_path(), new_process_model.id_for_file_path())
+        shutil.copytree(source_directory, destination_directory)
+
+        bpmn_files = sorted(glob(os.path.join(destination_directory, "*.bpmn")))
+        new_process_ids = {}
+        for bpmn_file in bpmn_files:
+            file_contents = None
+            print(f"bpmn_file: {bpmn_file}")
+            with open(bpmn_file) as f:
+                file_contents = f.read().encode()
+            process_ids = cls.get_bpmn_process_ids_for_file_contents(file_contents)
+            for process_id in process_ids:
+                new_process_ids[process_id] = f"{process_id}_COPY"
+
+        for old_process_id, new_process_id in new_process_ids.items():
+            for bpmn_file in bpmn_files:
+                fc = None
+                with open(bpmn_file) as f:
+                    fc = f.read()
+                regex = re.compile(f"(['\"]){old_process_id}(['\"])")
+                new_contents = regex.sub(f"\1{new_process_id}\2", fc)
+                with open(bpmn_file, 'w') as f:
+                    f.write(new_contents)
+
+        cls.save_process_model(new_process_model)
+        return new_process_model
+
     # path might have backslashes on windows, not sure
     # not sure if os.path.join converts forward slashes in the relative_path argument to backslashes:
     #   path = os.path.join(FileSystemService.root_path(), relative_path)
@@ -513,3 +534,32 @@ class ProcessModelService(FileSystemService):
             # we don't store `id` in the json files, so we add it in here
             process_model_info.id = name
         return process_model_info
+
+    @classmethod
+    def __get_all_nested_models(cls, group_path: str) -> list:
+        all_nested_models = []
+        for _root, dirs, _files in os.walk(group_path):
+            for dir in dirs:
+                model_dir = os.path.join(group_path, dir)
+                if ProcessModelService.is_process_model(model_dir):
+                    process_model = cls.get_process_model(model_dir)
+                    all_nested_models.append(process_model)
+        return all_nested_models
+
+    @classmethod
+    def __scan_process_groups(cls, process_group_id: str | None = None) -> list[ProcessGroup]:
+        if not os.path.exists(FileSystemService.root_path()):
+            return []  # Nothing to scan yet.  There are no files.
+        if process_group_id is not None:
+            scan_path = os.path.join(FileSystemService.root_path(), process_group_id)
+        else:
+            scan_path = FileSystemService.root_path()
+
+        with os.scandir(scan_path) as directory_items:
+            process_groups = []
+            for item in directory_items:
+                # if item.is_dir() and not item.name[0] == ".":
+                if item.is_dir() and cls.is_process_group(item):  # type: ignore
+                    scanned_process_group = cls.find_or_create_process_group(item.path)
+                    process_groups.append(scanned_process_group)
+            return process_groups

@@ -58,17 +58,6 @@ class SpecFileService(FileSystemService):
         return cls.get_references_for_file_contents(process_model_info, file.name, file_contents)
 
     @classmethod
-    def get_etree_from_xml_bytes(cls, binary_data: bytes) -> etree.Element:
-        etree_xml_parser = etree.XMLParser(resolve_entities=False)
-        return etree.fromstring(binary_data, parser=etree_xml_parser)  # noqa: S320
-
-    @classmethod
-    def get_bpmn_process_ids_for_file_contents(cls, binary_data: bytes) -> list[str]:
-        parser = MyCustomParser()
-        parser.add_bpmn_xml(cls.get_etree_from_xml_bytes(binary_data))
-        return list(parser.process_parsers.keys())
-
-    @classmethod
     def get_references_for_file_contents(
         cls, process_model_info: ProcessModelInfo, file_name: str, binary_data: bytes
     ) -> list[SpecReference]:
