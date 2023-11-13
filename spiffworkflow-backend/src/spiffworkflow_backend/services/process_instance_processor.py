@@ -166,9 +166,20 @@ class TaskDataBasedScriptEngineEnvironment(TaskDataEnvironment):  # type: ignore
         context: dict[str, Any],
         external_methods: dict[str, Any] | None = None,
     ) -> bool:
+        starting_keys = list(context.keys())
         super().execute(script, context, external_methods)
+        ending_keys = list(context.keys())
+        self.remove_undesired_keys_from_context(context, starting_keys, ending_keys)
         self._last_result = context
         return True
+
+    def remove_undesired_keys_from_context(self, context: dict, starting_keys: list, ending_keys: list) -> None:
+        if "spiff_return_variable" in ending_keys:
+            spiff_return_variable = context["spiff_return_variable"]
+            new_keys = set(ending_keys) - set(starting_keys)
+            keys_to_delete = new_keys - set(spiff_return_variable.keys())
+            for key in keys_to_delete:
+                del context[key]
 
     def user_defined_state(self, external_methods: dict[str, Any] | None = None) -> dict[str, Any]:
         return {}

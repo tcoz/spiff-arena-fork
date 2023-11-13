@@ -917,3 +917,19 @@ class TestProcessInstanceProcessor(BaseTest):
         ProcessInstanceService.complete_form_task(
             processor, spiff_manual_task, {}, process_instance.process_initiator, human_task_one
         )
+
+    def test_script_task_can_return_explicit_return_value(
+        self,
+        app: Flask,
+        client: FlaskClient,
+        with_db_and_bpmn_file_cleanup: None,
+    ) -> None:
+        process_model = load_test_spec(
+            process_model_id="group/explicit_script_task_return",
+            process_model_source_directory="explicit_script_task_return",
+        )
+        process_instance = self.create_process_instance_from_process_model(process_model=process_model)
+        processor = ProcessInstanceProcessor(process_instance)
+        processor.do_engine_steps(save=True)
+
+        assert processor.get_data() == {"validate_only": False, "a": 5, "b": 2, "c": 3, "e": 10}

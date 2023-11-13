@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_96f6665" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="3.0.0-dev">
+  <bpmn:process id="Process_SimpleScript" name="Simple Script" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0r3ua0i</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0r3ua0i" sourceRef="StartEvent_1" targetRef="Activity_SetInitialData" />
+    <bpmn:scriptTask id="Activity_SetInitialData" name="Set Initial Data">
+      <bpmn:incoming>Flow_0r3ua0i</bpmn:incoming>
+      <bpmn:outgoing>Flow_19g4f88</bpmn:outgoing>
+      <bpmn:script>a = 1
+b = 2
+d = 4
+spiff_return_variable = {"a": a, "b": b}
+    </bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:sequenceFlow id="Flow_19g4f88" sourceRef="Activity_SetInitialData" targetRef="Activity_CalculateNewData" />
+    <bpmn:scriptTask id="Activity_CalculateNewData" name="Calculate New Data">
+      <bpmn:incoming>Flow_19g4f88</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ulxawu</bpmn:outgoing>
+      <bpmn:script>c = a + b
+# a should be updated in place even though it's not in the spiff_return_variable
+a = 5
+spiff_return_variable = {"c": c}
+      </bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="Event_19fiqu4">
+      <bpmn:incoming>Flow_09yngxm</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1ulxawu" sourceRef="Activity_CalculateNewData" targetRef="set_new_variable" />
+    <bpmn:sequenceFlow id="Flow_09yngxm" sourceRef="set_new_variable" targetRef="Event_19fiqu4" />
+    <bpmn:scriptTask id="set_new_variable" name="Set new variable">
+      <bpmn:incoming>Flow_1ulxawu</bpmn:incoming>
+      <bpmn:outgoing>Flow_09yngxm</bpmn:outgoing>
+      <bpmn:script>e = 10</bpmn:script>
+    </bpmn:scriptTask>
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_SimpleScript">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="179" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0l45w13_di" bpmnElement="Activity_SetInitialData">
+        <dc:Bounds x="270" y="137" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_19fiqu4_di" bpmnElement="Event_19fiqu4">
+        <dc:Bounds x="752" y="159" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_00n1s76_di" bpmnElement="Activity_CalculateNewData">
+        <dc:Bounds x="440" y="137" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_00kvv2t_di" bpmnElement="set_new_variable">
+        <dc:Bounds x="610" y="137" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0r3ua0i_di" bpmnElement="Flow_0r3ua0i">
+        <di:waypoint x="215" y="177" />
+        <di:waypoint x="270" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19g4f88_di" bpmnElement="Flow_19g4f88">
+        <di:waypoint x="370" y="177" />
+        <di:waypoint x="440" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ulxawu_di" bpmnElement="Flow_1ulxawu">
+        <di:waypoint x="540" y="177" />
+        <di:waypoint x="610" y="177" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09yngxm_di" bpmnElement="Flow_09yngxm">
+        <di:waypoint x="710" y="177" />
+        <di:waypoint x="752" y="177" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
