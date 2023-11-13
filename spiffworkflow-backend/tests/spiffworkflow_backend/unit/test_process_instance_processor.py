@@ -931,5 +931,10 @@ class TestProcessInstanceProcessor(BaseTest):
         process_instance = self.create_process_instance_from_process_model(process_model=process_model)
         processor = ProcessInstanceProcessor(process_instance)
         processor.do_engine_steps(save=True)
+        human_task_one = process_instance.active_human_tasks[0]
+        spiff_manual_task = processor.bpmn_process_instance.get_task_from_id(UUID(human_task_one.task_id))
+        ProcessInstanceService.complete_form_task(
+            processor, spiff_manual_task, {}, process_instance.process_initiator, human_task_one
+        )
 
-        assert processor.get_data() == {"validate_only": False, "a": 5, "b": 2, "c": 3, "e": 10}
+        assert processor.get_data() == {"validate_only": False, "a": 5, "b": 2, "c": 3, "e": 10, "g": 12, "i": 14}
