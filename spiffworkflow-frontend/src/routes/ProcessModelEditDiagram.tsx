@@ -404,6 +404,17 @@ export default function ProcessModelEditDiagram() {
     }
   };
 
+  const onDataStoresRequested = (event: any) => {
+
+    const updateDataStoreOptions = (options: object) => {
+      event.eventBus.fire('spiff.data_stores.returned', { options });
+    };
+    HttpService.makeCallToBackend({
+      path: `/data-stores`,
+      successCallback: updateDataStoreOptions,
+    });
+  };
+
   useEffect(() => {
     const updateDiagramFiles = (pm: ProcessModel) => {
       setProcessModel(pm);
@@ -1101,6 +1112,7 @@ export default function ProcessModelEditDiagram() {
         onJsonSchemaFilesRequested={onJsonSchemaFilesRequested}
         onLaunchDmnEditor={onLaunchDmnEditor}
         onDmnFilesRequested={onDmnFilesRequested}
+        onDataStoresRequested={onDataStoresRequested}
         onSearchProcessModels={onSearchProcessModels}
         onElementsChanged={onElementsChanged}
         callers={callers}
