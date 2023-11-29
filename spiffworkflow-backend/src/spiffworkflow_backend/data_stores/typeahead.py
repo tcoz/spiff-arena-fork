@@ -13,13 +13,13 @@ from spiffworkflow_backend.models.typeahead import TypeaheadModel
 class TypeaheadDataStore(BpmnDataStoreSpecification, DataStoreCRUD):  # type: ignore
     """TypeaheadDataStore."""
 
-    @staticmethod
-    def existing_data_stores() -> list[dict[str, Any]]:
+    @classmethod
+    def existing_data_stores(cls) -> list[dict[str, Any]]:
         data_stores = []
 
         keys = db.session.query(TypeaheadModel.category).distinct().order_by(TypeaheadModel.category)  # type: ignore
         for key in keys:
-            data_stores.append({"name": key[0], "type": "typeahead"})
+            data_stores.append({"name": key[0], "type": "typeahead", "cls": cls.__name__})
 
         return data_stores
 

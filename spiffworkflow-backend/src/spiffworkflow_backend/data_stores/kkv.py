@@ -12,15 +12,15 @@ from spiffworkflow_backend.models.kkv_data_store import KKVDataStoreModel
 class KKVDataStore(BpmnDataStoreSpecification, DataStoreCRUD):  # type: ignore
     """KKVDataStore."""
 
-    @staticmethod
-    def existing_data_stores() -> list[dict[str, Any]]:
+    @classmethod
+    def existing_data_stores(cls) -> list[dict[str, Any]]:
         data_stores = []
 
         keys = (
             db.session.query(KKVDataStoreModel.top_level_key).distinct().order_by(KKVDataStoreModel.top_level_key)  # type: ignore
         )
         for key in keys:
-            data_stores.append({"name": key[0], "type": "kkv"})
+            data_stores.append({"name": key[0], "type": "kkv", "cls": cls.__name__})
 
         return data_stores
 

@@ -2,8 +2,8 @@ from typing import Any
 
 
 class DataStoreCRUD:
-    @staticmethod
-    def existing_data_stores() -> list[dict[str, Any]]:
+    @classmethod
+    def existing_data_stores(cls) -> list[dict[str, Any]]:
         raise Exception("must implement")
 
     @staticmethod

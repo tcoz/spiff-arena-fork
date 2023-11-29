@@ -42,13 +42,13 @@ def _data_store_location_for_task(spiff_task: SpiffTask, name: str) -> str | Non
 class JSONDataStore(BpmnDataStoreSpecification, DataStoreCRUD):  # type: ignore
     """JSONDataStore."""
 
-    @staticmethod
-    def existing_data_stores() -> list[dict[str, Any]]:
+    @classmethod
+    def existing_data_stores(cls) -> list[dict[str, Any]]:
         data_stores = []
 
         keys = db.session.query(JSONDataStoreModel.name).distinct().order_by(JSONDataStoreModel.name)  # type: ignore
         for key in keys:
-            data_stores.append({"name": key[0], "type": "json"})
+            data_stores.append({"name": key[0], "type": "json", "cls": cls.__name__})
 
         return data_stores
 
