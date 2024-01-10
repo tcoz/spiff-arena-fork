@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ComboBox } from '@carbon/react';
-import HttpService from '../../../services/HttpService';
+import { useDebouncedCallback } from 'use-debounce';
 import { getCommonAttributes } from '../../helpers';
 
 interface typeaheadArgs {
@@ -9,6 +9,7 @@ interface typeaheadArgs {
   options: any;
   value: any;
   label: string;
+  dataFetcherFunction: Function;
   schema?: any;
   uiSchema?: any;
   disabled?: boolean;
@@ -30,8 +31,8 @@ export default function TypeaheadWidget({
   placeholder,
   label,
   rawErrors = [],
+  dataFetcherFunction,
 }: typeaheadArgs) {
-  const lastSearchTerm = useRef('');
   const [items, setItems] = useState<any[]>([]);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const itemFormatRegex = /[^{}]+(?=})/g;
@@ -54,34 +55,12 @@ export default function TypeaheadWidget({
     }
   }
 
-  const typeaheadSearch = useCallback(
-    (inputText: string) => {
-      const pathForCategory = (text: string) => {
-        return `/connector-proxy/typeahead/${category}?prefix=${text}&limit=100`;
-      };
-      if (inputText) {
-        lastSearchTerm.current = inputText;
-        // TODO: check cache of prefixes -> results
-        HttpService.makeCallToBackend({
-          path: pathForCategory(inputText),
-          successCallback: (result: any) => {
-            if (lastSearchTerm.current === inputText) {
-              setItems(result);
-            }
-          },
-        });
-      }
-    },
-    [category]
-  );
-
   useEffect(() => {
     if (value) {
       setSelectedItem(JSON.parse(value));
-      typeaheadSearch(value);
+      dataFetcherFunction(value, category, setItems);
     }
-  }, [value, typeaheadSearch]);
-
+  }, [value, dataFetcherFunction, category]);
   const itemToString = (item: any) => {
     if (!item) {
       return null;
@@ -108,9 +87,17 @@ export default function TypeaheadWidget({
     commonAttributes.invalid = true;
   }
 
+  const addDebouncedDataFetcher = useDebouncedCallback(
+    (newValue: string) => {
+      dataFetcherFunction(newValue, category, setItems);
+    },
+    // delay in ms
+    200
+  );
+
   return (
     <ComboBox
-      onInputChange={typeaheadSearch}
+      onInputChange={addDebouncedDataFetcher}
       onChange={(event: any) => {
         setSelectedItem(event.selectedItem);
         let valueToUse = event.selectedItem;

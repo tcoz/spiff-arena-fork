@@ -8,6 +8,7 @@ import TypeaheadWidget from '../rjsf/custom_widgets/TypeaheadWidget/TypeaheadWid
 import MarkDownFieldWidget from '../rjsf/custom_widgets/MarkDownFieldWidget/MarkDownFieldWidget';
 import NumericRangeField from '../rjsf/custom_widgets/NumericRangeField/NumericRangeField';
 import ObjectFieldRestrictedGridTemplate from '../rjsf/custom_templates/ObjectFieldRestrictGridTemplate';
+import HttpService from '../services/HttpService';
 
 enum DateCheckType {
   minimum = 'minimum',
@@ -40,11 +41,31 @@ export default function CustomForm({
   noValidate = false,
   restrictedWidth = false,
 }: OwnProps) {
+  const typeaheadSearch = (
+    inputText: string,
+    category: string,
+    onSuccessCallback: any
+  ) => {
+    const pathForCategory = (text: string) => {
+      return `/connector-proxy/typeahead/${category}?prefix=${text}&limit=100`;
+    };
+    if (inputText) {
+      // TODO: check cache of prefixes -> results
+      HttpService.makeCallToBackend({
+        path: pathForCategory(inputText),
+        successCallback: onSuccessCallback,
+      });
+    }
+  };
   // set in uiSchema using the "ui:widget" key for a property
   const rjsfWidgets = {
     'date-range': DateRangePickerWidget,
     markdown: MarkDownFieldWidget,
-    typeahead: TypeaheadWidget,
+    typeahead: (args: any) => {
+      const ultiArgs = args;
+      ultiArgs.dataFetcherFunction = typeaheadSearch;
+      return TypeaheadWidget(ultiArgs);
+    },
   };
 
   // set in uiSchema using the "ui:field" key for a property
