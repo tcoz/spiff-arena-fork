@@ -598,9 +598,9 @@ class ProcessInstanceProcessor:
             bpmn_process_definition_dict: dict = bpmn_subprocess_definition.properties_json
             spiff_bpmn_process_dict["subprocess_specs"][bpmn_subprocess_definition.bpmn_identifier] = bpmn_process_definition_dict
             spiff_bpmn_process_dict["subprocess_specs"][bpmn_subprocess_definition.bpmn_identifier]["task_specs"] = {}
-            bpmn_subprocess_definition_bpmn_identifiers[bpmn_subprocess_definition.id] = (
-                bpmn_subprocess_definition.bpmn_identifier
-            )
+            bpmn_subprocess_definition_bpmn_identifiers[
+                bpmn_subprocess_definition.id
+            ] = bpmn_subprocess_definition.bpmn_identifier
 
         task_definitions = TaskDefinitionModel.query.filter(
             TaskDefinitionModel.bpmn_process_definition_id.in_(bpmn_subprocess_definition_bpmn_identifiers.keys())  # type: ignore
@@ -627,6 +627,8 @@ class ProcessInstanceProcessor:
     ) -> dict:
         json_data = JsonDataModel.query.filter_by(hash=bpmn_process.json_data_hash).first()
         bpmn_process_dict = {"data": json_data.data, "tasks": {}}
+        print(f"json_data.data", json_data.data)
+        print(f"bpmn_process.properties_json", bpmn_process.properties_json)
         bpmn_process_dict.update(bpmn_process.properties_json)
         if get_tasks:
             tasks = TaskModel.query.filter_by(bpmn_process_id=bpmn_process.id).all()
@@ -807,7 +809,12 @@ class ProcessInstanceProcessor:
                 )
                 # FIXME: the from_dict entrypoint in spiff will one day do this copy instead
                 process_copy = copy.deepcopy(full_bpmn_process_dict)
+                with open("full_bpmn.json", "w") as f:
+                    f.write(json.dumps(process_copy, indent=2))
                 bpmn_process_instance = ProcessInstanceProcessor._serializer.from_dict(process_copy)
+                with open("after_spiff.json", "w") as f:
+                    f.write(json.dumps(ProcessInstanceProcessor._serializer.to_dict(bpmn_process_instance), indent=2))
+
             except Exception as err:
                 raise err
             finally:
@@ -1126,6 +1133,7 @@ class ProcessInstanceProcessor:
                 at.completed = True
                 db.session.add(at)
         db.session.commit()
+        self.dump_to_disk()
 
     def serialize_task_spec(self, task_spec: SpiffTask) -> dict:
         """Get a serialized version of a task spec."""
@@ -1746,8 +1754,11 @@ class ProcessInstanceProcessor:
         return None
 
     # for debugging, get the full json representation into a file on disk
-    def dump_to_disk(self, filename: str = "process.json") -> None:
-        with open(filename, "w") as f:
+    def dump_to_disk(self, filename: str | None = None) -> None:
+        filename_to_use = filename
+        if filename is None:
+            filename_to_use = f"process_{datetime.now().strftime("%Y%m%d%H%M%S%f")}.json"
+        with open(filename_to_use, "w") as f:
             f.write(json.dumps(self.serialize(), indent=2))
 
     def remove_spiff_tasks_for_termination(self) -> None:

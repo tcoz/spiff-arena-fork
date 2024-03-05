@@ -306,7 +306,6 @@ class ProcessInstanceService:
                 save=True,
                 execution_strategy_name=execution_strategy_name,
             )
-
         return (processor, task_runnability)
 
     @staticmethod

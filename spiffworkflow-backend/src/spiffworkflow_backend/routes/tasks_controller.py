@@ -623,6 +623,7 @@ def _interstitial_stream(
         return
 
     processor = ProcessInstanceProcessor(process_instance)
+    processor.dump_to_disk()
     reported_ids = []  # A list of all the ids reported by this endpoint so far.
     tasks = get_reportable_tasks(processor)
     while True:
