@@ -32,6 +32,7 @@ on:
       - main
       - spiffdemo
       - feature/update-extension-docs
+      - hotfix/human-task-fk-fix-420e9e3
 
 jobs:
   create_frontend_docker_image:
