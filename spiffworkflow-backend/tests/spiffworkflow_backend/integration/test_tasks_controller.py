@@ -405,7 +405,7 @@ class TestTasksController(BaseTest):
         task_id = response.json["results"][0]["id"]
         assert task_id is not None
 
-        draft_data = {"HEY": "I'm draft"}
+        draft_data = {"name": "I'm draft", "department": "HR"}
 
         response = client.post(
             f"/v1.0/tasks/{process_instance_id}/{task_id}/save-draft",
@@ -439,7 +439,8 @@ class TestTasksController(BaseTest):
         assert response.status_code == 200
         assert response.json is not None
         assert response.json["saved_form_data"] is None
-        assert response.json["data"]["HEY"] == draft_data["HEY"]
+        assert response.json["data"]["name"] == draft_data["name"]
+        assert response.json["data"]["department"] == draft_data["department"]
 
     def test_task_instance_list(
         self,

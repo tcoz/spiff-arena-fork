@@ -5,6 +5,8 @@ from typing import Any
 from typing import TypedDict
 from uuid import UUID
 
+from jsonschema import validate
+
 import flask.wrappers
 import sentry_sdk
 from flask import Blueprint
@@ -485,6 +487,13 @@ def _task_submit_shared(
         task_guid=task_guid,
         only_tasks_that_can_be_completed=True,
     )
+
+    task_model_with_form = _get_task_model_for_request(
+        process_instance_id=process_instance_id,
+        task_guid=task_guid,
+        with_form_data=True,
+    )
+    validate(instance=body, schema=task_model_with_form.form_schema)
 
     with sentry_sdk.start_span(op="task", description="complete_form_task"):
         ProcessInstanceService.complete_form_task(
