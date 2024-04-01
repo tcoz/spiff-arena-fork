@@ -324,16 +324,26 @@ paths:
       tags:
         - Active User
       operationId: spiffworkflow_backend.routes.active_users_controller.active_user_updates
-      summary: An SSE (Server Sent Events) endpoint that returns what users are also currently viewing the same page as you.
+      summary: An endpoint that updates the active user's last seen timestamp and returns other active users on the same page.
       responses:
         "200":
-          description: list of users
+          description: List of active users on the same page.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/User"
+                  type: object
+                  properties:
+                    user_id:
+                      type: integer
+                      description: The unique identifier of the user.
+                    username:
+                      type: string
+                      description: The username of the active user.
+                    last_seen:
+                      type: integer
+                      description: The last seen timestamp in seconds.
 
   /active-users/unregister/{last_visited_identifier}:
     parameters:
@@ -347,10 +357,10 @@ paths:
       tags:
         - Active User
       operationId: spiffworkflow_backend.routes.active_users_controller.active_user_unregister
-      summary: Unregisters a user from a page. To be used when the /active-users/updates endpoint is closed.
+      summary: Unregisters a user from being active on a page.
       responses:
         "200":
-          description: The current user has unregistered.
+          description: The current user has been successfully unregistered from the page.
           content:
             application/json:
               schema:
@@ -392,7 +402,7 @@ paths:
                   $ref: "#/components/schemas/ProcessGroup"
     post:
       operationId: spiffworkflow_backend.routes.process_groups_controller.process_group_create
-      summary: Add process group
+      summary: Creates a new process group with the provided details.
       tags:
         - Process Groups
       requestBody:
@@ -402,7 +412,7 @@ paths:
               $ref: "#/components/schemas/ProcessGroup"
       responses:
         "201":
-          description: Processs Group
+          description: The newly created process group.
           content:
             application/json:
               schema:
