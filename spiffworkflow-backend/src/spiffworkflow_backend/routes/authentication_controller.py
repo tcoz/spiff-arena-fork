@@ -420,7 +420,9 @@ def _get_decoded_token(token: str) -> dict:
     try:
         decoded_token: dict = AuthenticationService.parse_jwt_token(_get_authentication_identifier_from_request(), token)
     except Exception as e:
-        current_app.logger.warning(f"Received exception when attempting to decode token: {e.__class__.__name__}: {str(e)}")
+        current_app.logger.warning(
+            f"Received exception when attempting to decode token: '{token}': {e.__class__.__name__}: {str(e)}"
+        )
         AuthenticationService.set_user_has_logged_out()
         raise ApiError(error_code="invalid_token", message="Cannot decode token.", status_code=401) from e
 
