@@ -1,0 +1,6 @@
+#!/Users/timconsolazio/Documents/GitHub/spiff-arena-fork/spiffworkflow-backend/venv/bin/python
+import sys
+from spiffworkflow_backend.__main__ import main
+
+if __name__ == '__main__':
+    sys.exit(main())
