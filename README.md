@@ -7,7 +7,13 @@ Using tools that look a lot like flow-charts and spreadsheets, it is possible to
 Please visit the [SpiffWorkflow website](https://www.spiffworkflow.org) for a [Getting Started Guide](https://www.spiffworkflow.org/posts/articles/get_started/) to see how to use SpiffArena and try it out.
 There are also additional articles, videos, and tutorials about SpiffArena and its components, including SpiffWorkflow, Service Connectors, and BPMN.js extensions.
 
+MAC: DO THIS::::
 
+$ # Assume you are activating Python 3 venv
+$ brew install mysql pkg-config
+$ pip install mysqlclient
+
+THEN run poetry install.
 
 ## Backend Setup, local
 
