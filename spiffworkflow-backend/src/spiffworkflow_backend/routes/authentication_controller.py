@@ -74,6 +74,13 @@ def verify_token(token: str | None = None, force_run: bool | None = False) -> di
     decoded_token = None
     if token_info["token"] is not None:
         decoded_token = _get_decoded_token(token_info["token"])
+        # IMPORTANT NOTE: The user has logged into the keycloak server,
+        # but the way Spazz is set up, if the AZP in the decoded_token does not match the below,
+        # the call will fail. So make sure it's set to the spiffworkflow-backend client ID.
+        # This will allow a client from another realm on the keycloak server to authenticate into the API.
+        # In this case, I'm being very specific to the client realm. That's fine, because this auth isn't
+        # really my problem.
+        decoded_token['azp'] = 'spiffworkflow-backend' if decoded_token['azp'] == 'spiffworkflow-frontend' else decoded_token['azp']
         user_model = _get_user_model_from_token(decoded_token)
     elif token_info["api_key"] is not None:
         user_model = _get_user_model_from_api_key(token_info["api_key"])
